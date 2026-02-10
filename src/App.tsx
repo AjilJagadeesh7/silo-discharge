@@ -33,14 +33,28 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
   const OUTLET_EXIT_Y = coneBottom - 0.05;
   const KILL_Y = coneBottom - 2.0;
 
+  // 🔧 Layer realism tuning
+  const LAYER_HEIGHT = 0.75;
+  const LAYER_MIX_RATIO = 0.4; //vertical mixing ratio
+  const MIX_OFFSET = LAYER_HEIGHT * LAYER_MIX_RATIO;
+
   const [particles] = useState<Particle[]>(() => {
     const arr: Particle[] = [];
 
+    const MIN_Y = coneBottom;
+    const MAX_Y = coneBottom + LAYERS * LAYER_HEIGHT;
+
     for (let layer = 0; layer < LAYERS; layer++) {
-      const layerBottomY = -CONE_HEIGHT + layer * 0.75;
+      const layerBottomY = coneBottom + layer * LAYER_HEIGHT;
 
       for (let i = 0; i < PARTICLES_PER_LAYER; i++) {
-        const y = layerBottomY + Math.random() * 0.75;
+        let y =
+          layerBottomY +
+          Math.random() * LAYER_HEIGHT +
+          (Math.random() * 2 - 1) * MIX_OFFSET;
+
+        // clamp vertical spill
+        y = Math.max(MIN_Y, Math.min(MAX_Y, y));
 
         let maxRadius;
         if (y < 0) {
@@ -67,6 +81,7 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
         });
       }
     }
+
     return arr;
   });
 
@@ -77,7 +92,6 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
   useFrame((_, delta) => {
     const GRAVITY = -3.4 * flowSpeed;
 
-    // RESET
     if (prevReset.current !== resetTrigger) {
       particles.forEach((p) => {
         p.position.copy(p.initialPosition);
@@ -89,16 +103,13 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
     particles.forEach((p) => {
       const isOutsideSilo = p.position.y < OUTLET_EXIT_Y;
 
-      // ⛔ Stop particles INSIDE silo when discharge stops
       if (mode !== "discharging" && !isOutsideSilo) {
         p.velocity.set(0, 0, 0);
         return;
       }
 
-      // gravity always applies to particles already outside
       p.velocity.y += GRAVITY * delta;
 
-      // visible discharge stream
       if (p.position.y < OUTLET_EXIT_Y) {
         p.velocity.x = 0;
         p.velocity.z = 0;
@@ -157,7 +168,6 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
       }
     });
 
-    // update instanced meshes
     for (let layer = 0; layer < LAYERS; layer++) {
       const mesh = instancedMeshRefs.current[layer];
       if (!mesh) continue;
@@ -179,7 +189,7 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
       {Array.from({ length: LAYERS }).map((_, layer) => (
         <instancedMesh
           key={layer}
-          ref={(r: never) => (instancedMeshRefs.current[layer] = r)}
+          ref={(r) => (instancedMeshRefs.current[layer] = r)}
           args={[undefined, undefined, PARTICLES_PER_LAYER]}
         >
           <sphereGeometry args={[0.025, 8, 8]} />
