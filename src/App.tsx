@@ -179,7 +179,7 @@ function Particles({ mode, resetTrigger, flowSpeed }: ParticlesProps) {
       {Array.from({ length: LAYERS }).map((_, layer) => (
         <instancedMesh
           key={layer}
-          ref={(r) => (instancedMeshRefs.current[layer] = r)}
+          ref={(r: never) => (instancedMeshRefs.current[layer] = r)}
           args={[undefined, undefined, PARTICLES_PER_LAYER]}
         >
           <sphereGeometry args={[0.025, 8, 8]} />
