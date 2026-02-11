@@ -103,6 +103,19 @@ export default function App() {
         </label>
 
         <ColorLegend allColors={allColors} onColorChange={handleColorChange} />
+
+        <div
+          style={{
+            marginTop: 10,
+            padding: "10px",
+            background: "rgba(0, 0, 0, 0.5)",
+            borderRadius: "5px",
+            border: "1px solid #4ECDC4",
+            textAlign: "center",
+          }}
+        >
+          Discharge is 33.3%
+        </div>
       </div>
 
       <Canvas camera={{ position: [8, 3, 10], fov: 60 }}>
