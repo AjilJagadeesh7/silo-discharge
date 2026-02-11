@@ -27,12 +27,11 @@ export default function App() {
     "#3498DB",
   ]); // Pink, Purple, Blue
 
-  const silo3Layers = 3;
+  const silo3Layers = 2;
   const [silo3Colors, setSilo3Colors] = useState([
     "#2ECC71",
-    "#E74C3C",
     "#F39C12",
-  ]); // Green, Coral, Amber
+  ]); // Green, Amber
 
   // Merge all colors for the legend
   const allColors = [...silo1Colors, ...silo2Colors, ...silo3Colors];
@@ -50,7 +49,7 @@ export default function App() {
       newColors[index - 3] = newColor;
       setSilo2Colors(newColors);
     } else {
-      // Silo 3 colors (lots 6-8)
+      // Silo 3 colors (lots 6-7)
       const newColors = [...silo3Colors];
       newColors[index - 6] = newColor;
       setSilo3Colors(newColors);
