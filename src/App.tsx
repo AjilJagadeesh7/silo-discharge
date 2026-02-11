@@ -35,9 +35,10 @@ export default function App() {
     "#F39C12",
   ]); // Green, Coral, Amber
 
-  const pileContainerRadius = 6.6;
-  const pileContainerHeight = 1.8;
-  const pileContainerY = -2.1;
+  const pileContainerWidth = 13.5;
+  const pileContainerDepth = 4.2;
+  const pileContainerHeight = 3.2;
+  const pileContainerY = -1.4;
 
   // Merge all colors for the legend
   const allColors = [...silo1Colors, ...silo2Colors, ...silo3Colors];
@@ -129,15 +130,8 @@ export default function App() {
         <directionalLight position={[5, 8, 5]} intensity={1.5} />
 
         <mesh position={[0, pileContainerY, 0]}>
-          <cylinderGeometry
-            args={[
-              pileContainerRadius,
-              pileContainerRadius,
-              pileContainerHeight,
-              64,
-              1,
-              true,
-            ]}
+          <boxGeometry
+            args={[pileContainerWidth, pileContainerHeight, pileContainerDepth]}
           />
           <meshStandardMaterial
             color="#9aa0a6"
