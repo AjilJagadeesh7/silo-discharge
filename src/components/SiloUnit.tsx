@@ -10,6 +10,8 @@ interface Particle {
   velocity: THREE.Vector3;
   layer: number;
   initialPosition: THREE.Vector3;
+  discharged: boolean;
+  restPosition: THREE.Vector3;
 }
 
 interface ParticlesProps {
@@ -39,7 +41,10 @@ function Particles({
 
   const coneBottom = -CONE_HEIGHT;
   const OUTLET_EXIT_Y = coneBottom - 0.05;
-  const KILL_Y = coneBottom - 2.0;
+  const KILL_Y = coneBottom - 1.4;
+  const COLLECTION_Y = KILL_Y;
+  const PILE_RADIUS = 1.2;
+  const PILE_HEIGHT = 0.7;
 
   // 🔧 Layer realism tuning
   // Calculate total silo height and make layers take up 75% of it
@@ -81,6 +86,16 @@ function Particles({
         const z = Math.sin(angle) * r;
 
         const pos = new THREE.Vector3(x, y, z);
+        const restAngle = Math.random() * Math.PI * 2;
+        const restRadius =
+          OUTLET_RADIUS + Math.pow(Math.random(), 0.35) * PILE_RADIUS;
+        const radiusFactor = Math.min(1, restRadius / PILE_RADIUS);
+        const restY = COLLECTION_Y + (1 - radiusFactor) ** 2 * PILE_HEIGHT;
+        const restPosition = new THREE.Vector3(
+          Math.cos(restAngle) * restRadius,
+          restY,
+          Math.sin(restAngle) * restRadius,
+        );
 
         arr.push({
           id: layer * PARTICLES_PER_LAYER + i,
@@ -88,6 +103,8 @@ function Particles({
           velocity: new THREE.Vector3(),
           layer,
           initialPosition: pos.clone(),
+          discharged: false,
+          restPosition,
         });
       }
     }
@@ -107,19 +124,22 @@ function Particles({
       particles.forEach((p) => {
         p.position.copy(p.initialPosition);
         p.velocity.set(0, 0, 0);
+        p.discharged = false;
       });
       prevReset.current = resetTrigger;
       nextStopPercentage.current = 33.3; // Reset target to first 33% mark
     }
 
-    // Count discharged particles (those that have been "killed")
+    // Count discharged particles (those that reached the collection plane)
     let dischargedCount = 0;
     const totalParticles = particles.length;
 
     particles.forEach((p) => {
-      // Count particles that have been discharged (set to y=-1000)
-      if (p.position.y <= -999) {
+      if (p.discharged) {
         dischargedCount++;
+        p.velocity.set(0, 0, 0);
+        p.position.copy(p.restPosition);
+        return;
       }
 
       const isOutsideSilo = p.position.y < OUTLET_EXIT_Y;
@@ -137,7 +157,8 @@ function Particles({
         p.position.addScaledVector(p.velocity, delta * flowSpeed);
 
         if (p.position.y < KILL_Y) {
-          p.position.set(0, -1000, 0);
+          p.discharged = true;
+          p.position.copy(p.restPosition);
           p.velocity.set(0, 0, 0);
         }
         return;
@@ -239,6 +260,8 @@ function Silo() {
   const CYLINDER_HEIGHT = 3.0;
   const CONE_HEIGHT = 1.5;
   const OUTLET_RADIUS = 0.2;
+  const GROUND_Y = -CONE_HEIGHT - 1.4;
+  const GROUND_RADIUS = 1.6;
 
   return (
     <group>
@@ -262,6 +285,16 @@ function Silo() {
           color="#cccccc"
           transparent
           opacity={0.25}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      <mesh position={[0, GROUND_Y - 0.02, 0]}>
+        <cylinderGeometry args={[GROUND_RADIUS, GROUND_RADIUS, 0.04, 48]} />
+        <meshStandardMaterial
+          color="#2a2a2a"
+          transparent
+          opacity={0.6}
           side={THREE.DoubleSide}
         />
       </mesh>
