@@ -353,7 +353,7 @@ export default function SiloUnit({
   layers,
   layerColors,
   fillContainer,
-  showGround = true,
+  showGround = false,
   onDischargeComplete,
 }: SiloUnitProps) {
   const fillContainerLocal = fillContainer
