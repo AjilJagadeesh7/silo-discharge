@@ -39,7 +39,6 @@ function Particles({
 
   const coneBottom = -CONE_HEIGHT;
   const OUTLET_EXIT_Y = coneBottom - 0.05;
-  const KILL_Y = coneBottom - 2.0;
 
   // 🔧 Layer realism tuning
   // Calculate total silo height and make layers take up 75% of it
@@ -112,21 +111,30 @@ function Particles({
       nextStopPercentage.current = 33.3; // Reset target to first 33% mark
     }
 
-    // Count discharged particles (those that have been "killed")
+    // Count discharged particles (those that have reached the bin)
     let dischargedCount = 0;
     const totalParticles = particles.length;
+    const BIN_FLOOR_Y = -6;
 
     particles.forEach((p) => {
-      // Count particles that have been discharged (set to y=-1000)
-      if (p.position.y <= -999) {
+      // If particle has reached the bin floor, stop it
+      if (p.position.y <= BIN_FLOOR_Y) {
+        p.position.y = BIN_FLOOR_Y + Math.random() * 0.2; // Slight pile-up
+        p.velocity.set(0, 0, 0);
         dischargedCount++;
+        return;
       }
 
       const isOutsideSilo = p.position.y < OUTLET_EXIT_Y;
 
       if (mode !== "discharging" && !isOutsideSilo) {
-        p.velocity.set(0, 0, 0);
-        return;
+        // If particle is already falling outside (between silo and bin), let it fall
+        if (isOutsideSilo && p.position.y > BIN_FLOOR_Y) {
+          // continue falling
+        } else {
+          p.velocity.set(0, 0, 0);
+          return;
+        }
       }
 
       p.velocity.y += GRAVITY * delta;
@@ -136,8 +144,12 @@ function Particles({
         p.velocity.z = 0;
         p.position.addScaledVector(p.velocity, delta * flowSpeed);
 
-        if (p.position.y < KILL_Y) {
-          p.position.set(0, -1000, 0);
+        if (p.position.y < BIN_FLOOR_Y) {
+          p.position.set(
+            p.position.x,
+            BIN_FLOOR_Y + Math.random() * 0.1,
+            p.position.z,
+          );
           p.velocity.set(0, 0, 0);
         }
         return;

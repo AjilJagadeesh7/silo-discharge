@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import SiloUnit from "./components/SiloUnit";
 import ColorLegend from "./components/ColorLegend";
+import CollectionBin from "./components/CollectionBin";
 
 type SimulationMode = "idle" | "discharging";
 
@@ -105,10 +106,19 @@ export default function App() {
         <ColorLegend allColors={allColors} onColorChange={handleColorChange} />
       </div>
 
-      <Canvas camera={{ position: [8, 3, 10], fov: 60 }}>
+      <Canvas shadows camera={{ position: [0, 4, 18], fov: 60 }}>
         <color attach="background" args={["#0f0f1e"]} />
         <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 8, 5]} intensity={1.5} />
+        <directionalLight
+          position={[5, 10, 5]}
+          intensity={1.5}
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+        />
+        <gridHelper
+          args={[40, 40, "#444444", "#222222"]}
+          position={[0, -6, 0]}
+        />
 
         {/* Three silos positioned side by side */}
         <SiloUnit
@@ -137,7 +147,22 @@ export default function App() {
           layerColors={silo3Colors}
         />
 
-        <OrbitControls />
+        {/* Collection Bin positioned below all silos */}
+        <CollectionBin
+          position={[0, -4.5, 0]}
+          width={18}
+          height={3}
+          depth={6}
+          wallThickness={0.2}
+        />
+
+        {/* DEBUG: Red Box to test visibility */}
+        <mesh position={[0, -2, 5]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial color="red" />
+        </mesh>
+
+        <OrbitControls target={[0, -2, 0]} />
       </Canvas>
     </div>
   );
