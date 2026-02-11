@@ -156,12 +156,6 @@ export default function App() {
           wallThickness={0.2}
         />
 
-        {/* DEBUG: Red Box to test visibility */}
-        <mesh position={[0, -2, 5]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshBasicMaterial color="red" />
-        </mesh>
-
         <OrbitControls target={[0, -2, 0]} />
       </Canvas>
     </div>
