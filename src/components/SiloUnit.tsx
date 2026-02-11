@@ -20,6 +20,10 @@ interface ParticlesProps {
   flowSpeed: number;
   layers: number;
   layerColors: string[];
+  fillContainerLocal?: {
+    center: [number, number, number];
+    size: [number, number, number];
+  };
   onDischargeComplete?: () => void;
 }
 
@@ -29,6 +33,7 @@ function Particles({
   flowSpeed,
   layers,
   layerColors,
+  fillContainerLocal,
   onDischargeComplete,
 }: ParticlesProps) {
   const PARTICLES_PER_LAYER = 6000;
@@ -86,16 +91,37 @@ function Particles({
         const z = Math.sin(angle) * r;
 
         const pos = new THREE.Vector3(x, y, z);
-        const restAngle = Math.random() * Math.PI * 2;
-        const restRadius =
-          OUTLET_RADIUS + Math.pow(Math.random(), 0.35) * PILE_RADIUS;
-        const radiusFactor = Math.min(1, restRadius / PILE_RADIUS);
-        const restY = COLLECTION_Y + (1 - radiusFactor) ** 2 * PILE_HEIGHT;
-        const restPosition = new THREE.Vector3(
-          Math.cos(restAngle) * restRadius,
-          restY,
-          Math.sin(restAngle) * restRadius,
-        );
+        let restPosition: THREE.Vector3;
+
+        if (fillContainerLocal) {
+          const [centerX, centerY, centerZ] = fillContainerLocal.center;
+          const [sizeX, sizeY, sizeZ] = fillContainerLocal.size;
+          const margin = 0.2;
+          const usableX = Math.max(0.1, sizeX - margin * 2);
+          const usableZ = Math.max(0.1, sizeZ - margin * 2);
+          const layerBandHeight = sizeY / LAYERS;
+          const baseY = centerY - sizeY / 2;
+
+          const restX = centerX + (Math.random() - 0.5) * usableX;
+          const restZ = centerZ + (Math.random() - 0.5) * usableZ;
+          const bandY =
+            baseY + (layer + Math.random()) * layerBandHeight + margin * 0.5;
+          const noiseY = baseY + Math.random() * (sizeY - margin);
+          const restY = bandY * 0.55 + noiseY * 0.45;
+
+          restPosition = new THREE.Vector3(restX, restY, restZ);
+        } else {
+          const restAngle = Math.random() * Math.PI * 2;
+          const restRadius =
+            OUTLET_RADIUS + Math.pow(Math.random(), 0.35) * PILE_RADIUS;
+          const radiusFactor = Math.min(1, restRadius / PILE_RADIUS);
+          const restY = COLLECTION_Y + (1 - radiusFactor) ** 2 * PILE_HEIGHT;
+          restPosition = new THREE.Vector3(
+            Math.cos(restAngle) * restRadius,
+            restY,
+            Math.sin(restAngle) * restRadius,
+          );
+        }
 
         arr.push({
           id: layer * PARTICLES_PER_LAYER + i,
@@ -311,6 +337,10 @@ interface SiloUnitProps {
   flowSpeed: number;
   layers: number;
   layerColors: string[];
+  fillContainer?: {
+    center: [number, number, number];
+    size: [number, number, number];
+  };
   showGround?: boolean;
   onDischargeComplete?: () => void;
 }
@@ -322,9 +352,21 @@ export default function SiloUnit({
   flowSpeed,
   layers,
   layerColors,
+  fillContainer,
   showGround = true,
   onDischargeComplete,
 }: SiloUnitProps) {
+  const fillContainerLocal = fillContainer
+    ? {
+        center: [
+          fillContainer.center[0] - position[0],
+          fillContainer.center[1] - position[1],
+          fillContainer.center[2] - position[2],
+        ] as [number, number, number],
+        size: fillContainer.size,
+      }
+    : undefined;
+
   return (
     <group position={position}>
       <Silo showGround={showGround} />
@@ -334,6 +376,7 @@ export default function SiloUnit({
         flowSpeed={flowSpeed}
         layers={layers}
         layerColors={layerColors}
+        fillContainerLocal={fillContainerLocal}
         onDischargeComplete={onDischargeComplete}
       />
     </group>

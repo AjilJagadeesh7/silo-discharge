@@ -37,8 +37,16 @@ export default function App() {
 
   const pileContainerWidth = 13.5;
   const pileContainerDepth = 4.2;
-  const pileContainerHeight = 3.2;
-  const pileContainerY = -1.4;
+  const pileContainerHeight = 1.9;
+  const pileContainerY = -3.0;
+  const fillContainer = {
+    center: [0, pileContainerY, 0] as [number, number, number],
+    size: [pileContainerWidth, pileContainerHeight, pileContainerDepth] as [
+      number,
+      number,
+      number,
+    ],
+  };
 
   // Merge all colors for the legend
   const allColors = [...silo1Colors, ...silo2Colors, ...silo3Colors];
@@ -149,6 +157,7 @@ export default function App() {
           flowSpeed={flowSpeed}
           layers={silo1Layers}
           layerColors={silo1Colors}
+          fillContainer={fillContainer}
           onDischargeComplete={() => setMode("idle")}
         />
         <SiloUnit
@@ -158,6 +167,7 @@ export default function App() {
           flowSpeed={flowSpeed}
           layers={silo2Layers}
           layerColors={silo2Colors}
+          fillContainer={fillContainer}
         />
         <SiloUnit
           position={[5, 0, 0]}
@@ -166,6 +176,7 @@ export default function App() {
           flowSpeed={flowSpeed}
           layers={silo3Layers}
           layerColors={silo3Colors}
+          fillContainer={fillContainer}
         />
 
         <OrbitControls />
