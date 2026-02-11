@@ -44,7 +44,7 @@ function Particles({
   const KILL_Y = coneBottom - 1.4;
   const COLLECTION_Y = KILL_Y;
   const PILE_RADIUS = 1.2;
-  const PILE_HEIGHT = 0.7;
+  const PILE_HEIGHT = 1.0;
 
   // 🔧 Layer realism tuning
   // Calculate total silo height and make layers take up 75% of it
