@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import * as THREE from "three";
 import SiloUnit from "./components/SiloUnit";
 import ColorLegend from "./components/ColorLegend";
 
@@ -33,6 +34,10 @@ export default function App() {
     "#E74C3C",
     "#F39C12",
   ]); // Green, Coral, Amber
+
+  const pileContainerRadius = 6.6;
+  const pileContainerHeight = 1.8;
+  const pileContainerY = -2.1;
 
   // Merge all colors for the legend
   const allColors = [...silo1Colors, ...silo2Colors, ...silo3Colors];
@@ -122,6 +127,25 @@ export default function App() {
         <color attach="background" args={["#0f0f1e"]} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 8, 5]} intensity={1.5} />
+
+        <mesh position={[0, pileContainerY, 0]}>
+          <cylinderGeometry
+            args={[
+              pileContainerRadius,
+              pileContainerRadius,
+              pileContainerHeight,
+              64,
+              1,
+              true,
+            ]}
+          />
+          <meshStandardMaterial
+            color="#9aa0a6"
+            transparent
+            opacity={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
 
         {/* Three silos positioned side by side */}
         <SiloUnit

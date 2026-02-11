@@ -255,7 +255,7 @@ function Particles({
   );
 }
 
-function Silo() {
+function Silo({ showGround = true }: { showGround?: boolean }) {
   const SILO_RADIUS = 1.5;
   const CYLINDER_HEIGHT = 3.0;
   const CONE_HEIGHT = 1.5;
@@ -289,15 +289,17 @@ function Silo() {
         />
       </mesh>
 
-      <mesh position={[0, GROUND_Y - 0.02, 0]}>
-        <cylinderGeometry args={[GROUND_RADIUS, GROUND_RADIUS, 0.04, 48]} />
-        <meshStandardMaterial
-          color="#2a2a2a"
-          transparent
-          opacity={0.6}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      {showGround ? (
+        <mesh position={[0, GROUND_Y - 0.02, 0]}>
+          <cylinderGeometry args={[GROUND_RADIUS, GROUND_RADIUS, 0.04, 48]} />
+          <meshStandardMaterial
+            color="#2a2a2a"
+            transparent
+            opacity={0.6}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ) : null}
     </group>
   );
 }
@@ -309,6 +311,7 @@ interface SiloUnitProps {
   flowSpeed: number;
   layers: number;
   layerColors: string[];
+  showGround?: boolean;
   onDischargeComplete?: () => void;
 }
 
@@ -319,11 +322,12 @@ export default function SiloUnit({
   flowSpeed,
   layers,
   layerColors,
+  showGround = true,
   onDischargeComplete,
 }: SiloUnitProps) {
   return (
     <group position={position}>
-      <Silo />
+      <Silo showGround={showGround} />
       <Particles
         mode={mode}
         resetTrigger={resetTrigger}
