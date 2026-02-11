@@ -96,18 +96,18 @@ function Particles({
         if (fillContainerLocal) {
           const [centerX, centerY, centerZ] = fillContainerLocal.center;
           const [sizeX, sizeY, sizeZ] = fillContainerLocal.size;
-          const margin = 0.2;
+          const margin = 0.1;
           const usableX = Math.max(0.1, sizeX - margin * 2);
           const usableZ = Math.max(0.1, sizeZ - margin * 2);
-          const layerBandHeight = sizeY / LAYERS;
           const baseY = centerY - sizeY / 2;
+          const fillHeight = sizeY * 0.65;
+          const layerBandHeight = fillHeight / LAYERS;
 
           const restX = centerX + (Math.random() - 0.5) * usableX;
           const restZ = centerZ + (Math.random() - 0.5) * usableZ;
-          const bandY =
-            baseY + (layer + Math.random()) * layerBandHeight + margin * 0.5;
-          const noiseY = baseY + Math.random() * (sizeY - margin);
-          const restY = bandY * 0.55 + noiseY * 0.45;
+          const bandY = baseY + (layer + Math.random()) * layerBandHeight;
+          const noiseY = baseY + Math.random() * fillHeight;
+          const restY = bandY * 0.5 + noiseY * 0.5;
 
           restPosition = new THREE.Vector3(restX, restY, restZ);
         } else {
